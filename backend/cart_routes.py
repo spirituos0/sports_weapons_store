@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.models import db, Cart, CartItem, Product
+from models import db, Cart, CartItem, Product
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 

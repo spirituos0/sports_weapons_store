@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import NotFound
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt_identity
-from backend.models import User, Product, Order, OrderProduct, db, Cart, CartItem, Category
+from models import User, Product, Order, OrderProduct, db, Cart, CartItem, Category
 
 
 bp = Blueprint("api", __name__)  # Создаем Blueprint
