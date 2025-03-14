@@ -1,0 +1,100 @@
+html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+}
+
+nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+}
+
+main {
+    padding: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/* Кнопка "Add to Cart" */
+.add-to-cart {
+    background-color: #28a745;
+    color: white;
+}
+
+.add-to-cart:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Кнопка "Clear Cart" */
+.clear-cart {
+    background-color: #dc3545;
+    color: white;
+}
+
+.clear-cart:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+
+/* Кнопка "Remove from Cart" */
+.remove-from-cart {
+    background-color: #ffc107;
+    color: black;
+}
+
+.remove-from-cart:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+}
+
+/* Выравнивание кнопок */
+#cart-list button {
+    margin-top: 10px;
+}
+
+
+
+.cart-error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+
+.content {
+    flex: 1;
+    text-align: center;
+    padding: 20px;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}

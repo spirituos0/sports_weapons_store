@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="content">
+        <header>
+            <h1>Welcome to our store!</h1>
+            <nav>
+                <a href="{{ url_for('dashboard') }}">Profile</a>
+            </nav>
+        </header>
+        <main>
+            <h2>Best products</h2>
+            <p>Choose what you need!</p>
+            <a href="{{ url_for('products') }}" class="btn">Go to catalog</a>
+        </main>
+    </div>
+    <footer>
+        <p>© 2025 Store. All rights reserved.</p>
+    </footer>
+</body>
+</html>

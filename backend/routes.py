@@ -1,13 +1,18 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import NotFound
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt_identity
-from models import User, Product, Order, OrderProduct, db, Cart, CartItem, Category
+from backend.models import User, Product, Order, OrderProduct, Cart, CartItem, Category
+from backend import db  
 
 
-bp = Blueprint("api", __name__)  # Создаем Blueprint
+main_bp = Blueprint("main", __name__, url_prefix="/api")
 
-@bp.route("/profile", methods=["GET"])
+@main_bp.route("/")
+def index():
+    return render_template("index.html")
+
+@main_bp.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
     user_id = get_jwt_identity()
@@ -22,20 +27,20 @@ def profile():
         "email": user.email
     })
 
-@bp.route('/products', methods=['GET'])
+@main_bp.route('/products', methods=['GET'])
 def get_products():
     products = Product.query.all()
     products_list = [{'id': p.id, 'name': p.name, 'price': p.price, 'description': p.description, 'stock': p.stock} for p in products]
     return jsonify(products_list)
 
 # Получение одного продукта по ID
-@bp.route('/products/<int:product_id>', methods=['GET'])
+@main_bp.route('/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     product = Product.query.get_or_404(product_id)
     return jsonify({'id': product.id, 'name': product.name, 'price': product.price, 'description': product.description, 'stock': product.stock})
 
 # Создание нового продукта
-@bp.route('/products', methods=['POST'])
+@main_bp.route('/products', methods=['POST'])
 def create_product():
     data = request.get_json()
     category_id = data.get("category_id")
@@ -60,7 +65,7 @@ def create_product():
     return jsonify({'message': 'Product created successfully', 'id': new_product.id}), 201
 
 # Обновление продукта
-@bp.route('/products/<int:product_id>', methods=['PUT'])
+@main_bp.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     product = Product.query.get_or_404(product_id)
     data = request.get_json()
@@ -74,13 +79,13 @@ def update_product(product_id):
     if 'stock' in data:
         product.stock = data['stock']
     if 'category_id' in data:
-        category = data['category_id']
+        product.category_id = data['category_id']
 
     db.session.commit()
     return jsonify({'message': 'Product updated successfully'})
 
 # Удаление продукта
-@bp.route('/products/<int:product_id>', methods=['DELETE'])
+@main_bp.route('/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)
@@ -88,7 +93,7 @@ def delete_product(product_id):
     return jsonify({'message': 'Product deleted successfully'})
 
 # Получение всех заказов
-@bp.route('/orders', methods=['GET'])
+@main_bp.route('/orders', methods=['GET'])
 def get_orders():
     orders = Order.query.all()
     orders_list = [
@@ -110,7 +115,7 @@ def get_orders():
     return jsonify(orders_list)
 
 # Получение конкретного заказа
-@bp.route('/orders/<int:order_id>', methods=['GET'])
+@main_bp.route('/orders/<int:order_id>', methods=['GET'])
 def get_order(order_id):
     order = Order.query.get_or_404(order_id)
     return jsonify({
@@ -128,7 +133,7 @@ def get_order(order_id):
     })
 
 # Создание нового заказа
-@bp.route('/orders', methods=['POST'])
+@main_bp.route('/orders', methods=['POST'])
 def create_order():
     data = request.get_json()
     if not data or not all(k in data for k in ('customer_name', 'customer_email', 'products')):
@@ -166,7 +171,7 @@ def create_order():
     return jsonify({'message': 'Order created successfully', 'id': new_order.id}), 201
 
 # Обновление статуса заказа
-@bp.route('/orders/<int:order_id>', methods=['PUT'])
+@main_bp.route('/orders/<int:order_id>', methods=['PUT'])
 def update_order(order_id):
     order = Order.query.get_or_404(order_id)
     data = request.get_json()
@@ -178,10 +183,10 @@ def update_order(order_id):
     return jsonify({'message': 'Order updated successfully'})
 
 # Удаление заказа
-@bp.route('/orders/<int:order_id>', methods=['DELETE'])
+@main_bp.route('/orders/<int:order_id>', methods=['DELETE'])
 @jwt_required()
 def delete_order(order_id):
-    order = Order.query.get(order_id)
+    order = Order.query.get_or_404(order_id)
     
     if not order:
         return jsonify({"message": "Order not found"}), 404

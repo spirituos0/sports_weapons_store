@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <h1>Product Catalog</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('dashboard') }}">Profile</a>
+        </nav>
+        <h2>Cart</h2>
+        <div id="cart-list"></div>
+        <button class="clear-cart" onclick="clearCart()">Clear Cart</button>
+    </header>
+    <main>
+        <div id="product-list"></div>
+        <div id="product-list"></div>
+    </main>
+    <footer>
+        <p>© 2025 Store. All rights reserved.</p>
+    </footer>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
