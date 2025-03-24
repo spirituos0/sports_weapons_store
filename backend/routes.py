@@ -200,3 +200,64 @@ def delete_order(order_id):
 
     return jsonify({"message": "Order deleted successfully"}), 200
 
+@main_bp.route("/purchase", methods=["POST"])
+@jwt_required()
+def purchase():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+    products = data.get("products", [])
+
+    if not products:
+        return jsonify({"error": "No products specified"}), 400
+
+    total_price = 0
+    order_items = []
+
+    for item in products:
+        product = Product.query.get(item["product_id"])
+        if not product:
+            return jsonify({"error": f"Product ID {item['product_id']} not found"})
+        if product.stock < item["quantity"]:
+            return jsonify({"error": f"Not enough stock for {product.name}"}), 400
+
+        # Calculate total price
+        total_price += product.price * item["quantity"]
+        order_items.append((product, item["quantity"]))
+
+    # Check if user has enough balance
+
+    if user.balance < total_price:
+        return jsonify({"error": "Insufficient balance"}), 400
+
+    # Deduct the balance and process order
+    user.balance -= total_price
+    db.session.commit()
+
+    #Create order
+    new_order = Order(
+        user_id=user.id,
+        customer_name=user.username,
+        customer_email=total_price,
+        status="Completed"
+    )
+    db.session.add(new_order)
+    db.session.commit()
+
+    # Add order products
+    for product, quantity in order_items:
+        order_product = OrderProduct(
+            order_id=new_order.id,
+            product_id=product.id,
+            quantity=quantity
+        )
+        db.session.add(order_product)
+        product.stock -= quantity # Reduce stock
+        db.session.commit()
+
+    return jsonify({"message": "Purchase successful", "order_id": new_order.id, "remaining_balance": user.balance}), 201
+

@@ -34,6 +34,7 @@ class Product(db.Model):
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False) #Add user reference
     customer_name = db.Column(db.String(255), nullable=False)
     customer_email = db.Column(db.String(255), db.ForeignKey("user.email"), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
