@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const registerForm = document.getElementById("registerForm");
     const loginForm = document.getElementById("loginForm");
 
-    // Регистрация
+    // Registration
     registerForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const username = document.getElementById("regUsername").value;
@@ -19,17 +19,17 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("registerMessage").innerText = data.message || data.error;
     });
 
-    // Вход
+    // Login
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const username = document.getElementById("loginUsername").value.trim();
         const password = document.getElementById("loginPassword").value.trim();
         
-        console.log("Введенные данные:", { username, password }); // Проверка данных
+        console.log("Insert data:", { username, password }); // Checking the data
 
         if (!username || !password) {
-            document.getElementById("loginMessage").innerText = "Введите логин и пароль";
+            document.getElementById("loginMessage").innerText = "Insert login and password";
             return;
         }
 
@@ -40,26 +40,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ username, password })
             });
 
-            // Проверка, что сервер действительно вернул JSON
+            // Checking that the server returned exactly JSON
             const contentType = response.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
-                console.error("Ошибка: ответ не JSON:", await response.text());
+                console.error("Error: response is not JSON", await response.text());
                 return;
             }
 
             const result = await response.json();
-            console.log("Ответ сервера:", result);
+            console.log("Server response:", result);
             
             if (response.ok) {
                 localStorage.setItem("access_token", result.access_token);
                 console.log("Logged in successfully");
-                window.location.href = "/dashboard";  // Редирект на страницу после логина
+                window.location.href = "/dashboard";  // Redirect on the page after login
             } else {
-                document.getElementById("loginMessage").innerText = result.error || result.msg || "Ошибка авторизации";
+                document.getElementById("loginMessage").innerText = result.error || result.msg || "Authorization error";
             }
         } catch (error) {
-            console.error("Ошибка сети:", error);
-            alert("Ошибка сети");
+            console.error("Network error:", error);
+            alert("Network error");
         }
     });
 });

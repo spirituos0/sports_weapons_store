@@ -27,20 +27,21 @@ class Product(db.Model):
     description = db.Column(db.Text, nullable=True)
     stock = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=True)  # Добавляем связь
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=True)  # Adding a connection
 
     def __repr__(self):
         return f'<Product {self.name} - {self.price} EUR>'
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False) #Add user reference
     customer_name = db.Column(db.String(255), nullable=False)
     customer_email = db.Column(db.String(255), db.ForeignKey("user.email"), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(50), default='Pending')  # Статус заказа (Pending, Completed, Canceled)
-    products = db.relationship('OrderProduct', backref='order', lazy="dynamic")  # Связь с продуктами
+    status = db.Column(db.String(50), default='Pending')  # Order status (Pending, Completed, Canceled)
+    products = db.relationship('OrderProduct', backref='order', lazy="dynamic")  # Product Relationships
 
-class OrderProduct(db.Model):  # Промежуточная таблица для связи "многие ко многим"
+class OrderProduct(db.Model):  # Intermediate table for many-to-many relationship
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
@@ -49,14 +50,13 @@ class OrderProduct(db.Model):  # Промежуточная таблица дл�
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True)
-    items = db.relationship('CartItem', backref='cart', cascade="all, delete-orphan")  # Связь с товарами в корзине
+    items = db.relationship('CartItem', backref='cart', cascade="all, delete-orphan")  # Link to items in cart
 
 class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
-
     product = db.relationship("Product", backref="cart_items", lazy=True)
 
 class Category(db.Model):

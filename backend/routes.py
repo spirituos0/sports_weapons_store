@@ -33,24 +33,24 @@ def get_products():
     products_list = [{'id': p.id, 'name': p.name, 'price': p.price, 'description': p.description, 'stock': p.stock} for p in products]
     return jsonify(products_list)
 
-# Получение одного продукта по ID
+# Getting one product by ID
 @main_bp.route('/products/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     product = Product.query.get_or_404(product_id)
     return jsonify({'id': product.id, 'name': product.name, 'price': product.price, 'description': product.description, 'stock': product.stock})
 
-# Создание нового продукта
+# Creating new product
 @main_bp.route('/products', methods=['POST'])
 def create_product():
     data = request.get_json()
     category_id = data.get("category_id")
-    if not data or not all(k in data for k in ('name', 'price', 'description', 'stock')):
+    if not data or not all(k in data for k in ('name', 'price', 'stock')):
         return jsonify({'error': 'Missing required fields'}), 400
 
     if category_id:
         category = Category.query.get(category_id)
         if not category:
-            return jsonify({"error": "Категория не найдена"}), 404
+            return jsonify({"error": "Category is not found."}), 404
 
     new_product = Product(
         name=data["name"],
@@ -64,7 +64,7 @@ def create_product():
     db.session.commit()
     return jsonify({'message': 'Product created successfully', 'id': new_product.id}), 201
 
-# Обновление продукта
+#Updating the product
 @main_bp.route('/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     product = Product.query.get_or_404(product_id)
@@ -84,7 +84,7 @@ def update_product(product_id):
     db.session.commit()
     return jsonify({'message': 'Product updated successfully'})
 
-# Удаление продукта
+# Deleting the product
 @main_bp.route('/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     product = Product.query.get_or_404(product_id)
@@ -92,7 +92,7 @@ def delete_product(product_id):
     db.session.commit()
     return jsonify({'message': 'Product deleted successfully'})
 
-# Получение всех заказов
+# Getting all orders
 @main_bp.route('/orders', methods=['GET'])
 def get_orders():
     orders = Order.query.all()
@@ -114,7 +114,7 @@ def get_orders():
     ]
     return jsonify(orders_list)
 
-# Получение конкретного заказа
+# Getting concrete order
 @main_bp.route('/orders/<int:order_id>', methods=['GET'])
 def get_order(order_id):
     order = Order.query.get_or_404(order_id)
@@ -132,7 +132,7 @@ def get_order(order_id):
         ]
     })
 
-# Создание нового заказа
+# Creating new order
 @main_bp.route('/orders', methods=['POST'])
 def create_order():
     data = request.get_json()
@@ -143,7 +143,7 @@ def create_order():
     new_order = Order(
         customer_name=data['customer_name'],
         customer_email=data['customer_email'],
-        total_price=0  # Посчитаем позже
+        total_price=0  # Will count later
     )
     db.session.add(new_order)
     db.session.commit()
@@ -162,15 +162,15 @@ def create_order():
         )
         db.session.add(order_product)
 
-        product.stock -= item['quantity']  # Уменьшаем количество товара
+        product.stock -= item['quantity']  # We reduce the quantity of products
         total_price += product.price * item['quantity']
 
-    new_order.total_price = total_price  # Обновляем цену заказа
+    new_order.total_price = total_price  # Update the price of the order
     db.session.commit()
 
     return jsonify({'message': 'Order created successfully', 'id': new_order.id}), 201
 
-# Обновление статуса заказа
+# Update the order status
 @main_bp.route('/orders/<int:order_id>', methods=['PUT'])
 def update_order(order_id):
     order = Order.query.get_or_404(order_id)
@@ -182,7 +182,7 @@ def update_order(order_id):
     db.session.commit()
     return jsonify({'message': 'Order updated successfully'})
 
-# Удаление заказа
+# Deleting the order
 @main_bp.route('/orders/<int:order_id>', methods=['DELETE'])
 @jwt_required()
 def delete_order(order_id):
@@ -191,12 +191,73 @@ def delete_order(order_id):
     if not order:
         return jsonify({"message": "Order not found"}), 404
 
-    # Удаляем связанные товары
+    # Deleting related products
     OrderProduct.query.filter_by(order_id=order_id).delete()
 
-    # Теперь можно удалить сам заказ
+    # Now we can delete the order
     db.session.delete(order)
     db.session.commit()
 
     return jsonify({"message": "Order deleted successfully"}), 200
+
+@main_bp.route("/purchase", methods=["POST"])
+@jwt_required()
+def purchase():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+    products = data.get("products", [])
+
+    if not products:
+        return jsonify({"error": "No products specified"}), 400
+
+    total_price = 0
+    order_items = []
+
+    for item in products:
+        product = Product.query.get(item["product_id"])
+        if not product:
+            return jsonify({"error": f"Product ID {item['product_id']} not found"})
+        if product.stock < item["quantity"]:
+            return jsonify({"error": f"Not enough stock for {product.name}"}), 400
+
+        # Calculate total price
+        total_price += product.price * item["quantity"]
+        order_items.append((product, item["quantity"]))
+
+    # Check if user has enough balance
+
+    if user.balance < total_price:
+        return jsonify({"error": "Insufficient balance"}), 400
+
+    # Deduct the balance and process order
+    user.balance -= total_price
+    db.session.commit()
+
+    #Create order
+    new_order = Order(
+        user_id=user.id,
+        customer_name=user.username,
+        customer_email=total_price,
+        status="Completed"
+    )
+    db.session.add(new_order)
+    db.session.commit()
+
+    # Add order products
+    for product, quantity in order_items:
+        order_product = OrderProduct(
+            order_id=new_order.id,
+            product_id=product.id,
+            quantity=quantity
+        )
+        db.session.add(order_product)
+        product.stock -= quantity # Reduce stock
+        db.session.commit()
+
+    return jsonify({"message": "Purchase successful", "order_id": new_order.id, "remaining_balance": user.balance}), 201
 

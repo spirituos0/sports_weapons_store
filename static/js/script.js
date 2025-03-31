@@ -12,7 +12,7 @@ function fetchProducts() {
             data.forEach(product => {
                 let productCard = document.createElement("div");
                 productCard.classList.add("product-card");
-                productCard.id = `product-${product.id}`; // ✅ Добавляем ID карточке
+                productCard.id = `product-${product.id}`; // Adding an ID to the card
 
                 productCard.innerHTML = `
                     <h3>${product.name}</h3>
@@ -45,23 +45,23 @@ function addToCart(productId) {
         let productCard = document.getElementById(`product-${productId}`);
         let errorMessage = productCard.querySelector(".cart-error-message");
 
-        // Если уже есть сообщение, удаляем его перед добавлением нового
+        // If there is already a message, delete it before adding a new one
         if (errorMessage) {
             errorMessage.remove();
         }
 
         if (status === 400 && body.error) {
-            // Если превышен лимит, добавляем сообщение об этом
+            // If the limit is exceeded, we add a message about it
             let errorText = document.createElement("p");
             errorText.classList.add("cart-error-message");
             errorText.innerText = body.error;
             productCard.appendChild(errorText);
 
-            // ✅ Вместо ошибки в консоли, просто логируем сообщение
+            // Instead of an error in the console, we simply log a message
             console.warn(`Attempted to add more than available: ${body.error}`);
         } else if (status === 201) {
             console.log("Product added:", body);
-            loadCart(); // Обновляем корзину
+            loadCart(); // Updating the cart
         }
     })
     .catch(error => console.error("Unexpected error adding to cart:", error));
@@ -110,7 +110,7 @@ function removeFromCart(productId) {
     .then(response => response.json())
     .then(data => {
         console.log("Product removed:", data);
-        loadCart();  // Обновляем корзину
+        loadCart();  // Updating the cart
     })
     .catch(error => console.error("Error removing from cart:", error));
 }

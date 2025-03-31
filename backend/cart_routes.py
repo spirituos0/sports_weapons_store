@@ -5,7 +5,7 @@ from backend.models import Cart, CartItem, Product
 
 cart_bp = Blueprint('cart', __name__)
 
-# 📌 Получить содержимое корзины
+# Get cart contents
 @cart_bp.route('/cart', methods=['GET'])
 @jwt_required()
 def get_cart():
@@ -26,7 +26,7 @@ def get_cart():
     ]
     return jsonify(cart_items), 200
 
-# 📌 Добавить товар в корзину
+# Add product to cart
 @cart_bp.route('/cart/add', methods=['POST'])
 @jwt_required()
 def add_to_cart():
@@ -39,24 +39,24 @@ def add_to_cart():
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
-    # Проверяем, есть ли уже корзина у пользователя
+    # Checking if the user already has a cart
     cart = Cart.query.filter_by(user_id=user_id).first()
     if not cart:
         cart = Cart(user_id=user_id)
         db.session.add(cart)
         db.session.commit()
 
-    # Проверяем, есть ли товар уже в корзине
+    # Checking if the item is already in the cart
     cart_item = CartItem.query.filter_by(cart_id=cart.id, product_id=product_id).first()
 
-    # Вычисляем общее количество товаров в корзине
+    # Calculate the total number of items in the basket
     total_quantity = quantity if not cart_item else cart_item.quantity + quantity
 
-    # Проверяем, есть ли достаточное количество товара на складе
+    # We check if there is enough product in stock
     if total_quantity > product.stock:
         return jsonify({"error": f"Only {product.stock} items available in stock"}), 400
 
-    # Добавляем или обновляем товар в корзине
+    # Add or update a product in the cart
     if cart_item:
         cart_item.quantity += quantity
     else:
@@ -66,7 +66,7 @@ def add_to_cart():
     db.session.commit()
     return jsonify({"message": "Product added to cart"}), 201
 
-# 📌 Удалить товар из корзины
+# Remove item from cart
 @cart_bp.route('/cart/remove', methods=['POST'])
 @jwt_required()
 def remove_from_cart():
@@ -86,7 +86,7 @@ def remove_from_cart():
     db.session.commit()
     return jsonify({"message": "Product removed from cart"}), 200
 
-# 📌 Очистить корзину
+# Clear Cart 
 @cart_bp.route('/cart/clear', methods=['POST'])
 @jwt_required()
 def clear_cart():

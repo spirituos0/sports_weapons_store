@@ -16,7 +16,7 @@ def create_app():
     from backend import models  
 
     with app.app_context():
-        db.create_all()  # Создаст таблицы, если их нет
+        db.create_all()  # Will create tables if they don't exist
 
     from backend.auth_routes import auth_bp
     from backend.routes import main_bp
