@@ -9,7 +9,7 @@ from backend import db
 auth_bp = Blueprint("auth", __name__)
 
 
-# 📌 Регистрация
+# Registration
 @auth_bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
@@ -28,7 +28,7 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    # 📌 Сразу создаем токен после регистрации
+    # We create a token immediately after registration 
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
 
@@ -38,7 +38,7 @@ def register():
         "refresh_token": refresh_token
     }), 201
 
-# 📌 Логин
+# Login
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -58,20 +58,20 @@ def login():
     }), 200
 
 
-# 📌 Обновление токена (refresh)
+# Token update (refresh) 
 @auth_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh():
-    user_id = get_jwt_identity() # Получаем user_id из токена
-    new_access_token = create_refresh_token(identity=user_id)  # ✅ user_id уже строка
+    user_id = get_jwt_identity() # Get user_id from token
+    new_access_token = create_refresh_token(identity=user_id)  # user_id is already a string
     return jsonify({"access_token": new_access_token})
 
-# 📌 Выход (logout)
+# Logout
 @auth_bp.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
     response = jsonify({"message": "Logout successful"})
-    unset_jwt_cookies(response)  # Удаляет JWT-токены из cookie
+    unset_jwt_cookies(response)  # Removes JWT tokens from cookies
     return response, 200
 
 
@@ -89,8 +89,9 @@ def profile():
         "id": user.id,
         "username": user.username,
         "email": user.email,
-        "role": user.role if hasattr(user, "role") else "Пользователь",
-        "created_at": user.created_at.strftime("%Y-%m-%d") if hasattr(user, "created_at") else "Неизвестно"
+        "role": user.role if hasattr(user, "role") else "User",
+        "created_at": user.created_at.strftime("%Y-%m-%d") if hasattr(user, "created_at") else "Unknown",
+        "balance": user.balance
     }), 200
 
 
@@ -99,20 +100,20 @@ def profile():
 def deposit_money():
     user_id = get_jwt_identity()
     data = request.get_json()
-    amount = data.get("amount", 0)
+    amount = data.get("amount")
 
-    if amount <= 0:
-        return jsonify({"error": "Deposit amount must be greater than zero"}), 400
+    if amount is None or amount <= 0:
+        return jsonify({"error": "Invalid amount"}), 422
 
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # ✅ Исправляем ошибку "NoneType + int"
+    # Fixing the "NoneType + int" error
     if user.balance is None:
         user.balance = 0.0
 
-    user.balance += amount  # ✅ Теперь не будет ошибки
+    user.balance += amount  
     db.session.commit()
 
     return jsonify({"message": "Balance updated", "new_balance": user.balance}), 200

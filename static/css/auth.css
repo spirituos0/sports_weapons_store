@@ -1,4 +1,4 @@
-/* Общие стили */
+/* Styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
@@ -10,7 +10,7 @@ body {
     flex-direction: column;
 }
 
-/* Контейнер */
+/* Container */
 .auth-container {
     background: white;
     padding: 30px;
@@ -21,13 +21,13 @@ body {
     text-align: center;
 }
 
-/* Заголовки */
+/* Headlines */
 h2 {
     color: #333;
     margin-bottom: 20px;
 }
 
-/* Поля ввода */
+/* Input fields */
 input {
     width: 100%;
     padding: 10px;
@@ -37,7 +37,7 @@ input {
     font-size: 16px;
 }
 
-/* Кнопки */
+/* Buttons */
 button {
     width: 100%;
     background-color: #007bff;
@@ -54,7 +54,7 @@ button:hover {
     background-color: #0056b3;
 }
 
-/* Сообщения */
+/* Messages */
 p {
     color: red;
     font-size: 14px;

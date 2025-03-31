@@ -1,4 +1,4 @@
-/* Общие стили */
+/* Common styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -7,7 +7,7 @@ body {
     text-align: center;
 }
 
-/* Контейнер */
+/* Container */
 .dashboard-container {
     max-width: 800px;
     margin: 50px auto;
@@ -17,14 +17,14 @@ body {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Заголовок */
+/* Headline */
 h1 {
     color: #333;
     font-size: 24px;
     margin-bottom: 10px;
 }
 
-/* Список данных */
+/* A list of data */
 ul {
     list-style: none;
     padding: 0;
@@ -37,7 +37,7 @@ li {
     border-radius: 5px;
 }
 
-/* Кнопки */
+/* Buttons */
 button {
     background-color: #007bff;
     color: white;
@@ -53,7 +53,7 @@ button:hover {
     background-color: #0056b3;
 }
 
-/* Кнопка выхода */
+/* Exit button */
 #logout {
     background-color: #dc3545;
 }

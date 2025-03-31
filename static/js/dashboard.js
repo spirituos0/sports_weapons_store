@@ -1,8 +1,26 @@
 document.addEventListener("DOMContentLoaded", async () => {
     await loadProfile();
 
-    // ✅ Добавляем обработчик клика для пополнения баланса
+    // Adding a click handler to top up your balance
     document.getElementById("depositButton").addEventListener("click", depositMoney);
+
+    const goToHomeBtn = document.getElementById("goToHome");
+    if (goToHomeBtn) {
+        goToHomeBtn.addEventListener("click", () => {
+            window.location.href = "/index"; // Redirect to home page
+        });
+    };
+
+    // Account logout handler
+    const logoutBtn = document.getElementById("logout");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+        });
+    } else {
+        console.error("Exit button is not found!");
+    };
 });
 
 async function loadProfile() {
@@ -33,9 +51,10 @@ async function loadProfile() {
         document.getElementById("role").innerText = data.role || "User";
         document.getElementById("created_at").innerText = data.created_at || "Unknown";
 
-        // ✅ Проверяем, существует ли баланс перед вызовом toFixed()
+        // Check if balance exists before calling toFixed()
+        console.log("Balance:", data.balance);
         let balance = data.balance !== undefined ? data.balance.toFixed(2) : "0.00";
-        document.getElementById("balance").innerText = `$${balance}`;
+        document.getElementById("balance").innerText = `${balance}`;
         
     } catch (error) {
         console.error("Error:", error.message);
@@ -54,6 +73,7 @@ async function depositMoney() {
     }
 
     try {
+        console.log("Sending amount:", amount);
         const response = await fetch("/auth/profile/deposit", {
             method: "POST",
             headers: {
@@ -79,73 +99,3 @@ async function depositMoney() {
 }
 
 
-
-
-
-
-document.addEventListener("DOMContentLoaded", async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-        alert("Нет токена, авторизуйтесь снова!");
-        window.location.href = "/login";
-        return;
-    }
-
-    try {
-        const response = await fetch("/auth/profile", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Ошибка загрузки профиля: ${response.status} ${response.statusText}`);
-        }
-
-        let data;
-        try {
-            data = await response.json();
-        } catch (jsonError) {
-            throw new Error("Ошибка парсинга JSON ответа сервера");
-        }
-
-        // Проверяем существование элементов перед присвоением значений
-        const usernameElem = document.getElementById("username");
-        const emailElem = document.getElementById("email");
-        const userIdElem = document.getElementById("userId");
-        const roleElem = document.getElementById("role");
-        const createdAtElem = document.getElementById("created_at");
-
-        if (usernameElem) usernameElem.innerText = data.username || "Неизвестно";
-        if (emailElem) emailElem.innerText = data.email || "Неизвестно";
-        if (userIdElem) userIdElem.innerText = data.id || "Неизвестно";
-        if (roleElem) roleElem.innerText = data.role || "Пользователь";
-        if (createdAtElem) createdAtElem.innerText = data.created_at || "Неизвестно";
-        
-    } catch (error) {
-        console.error("Ошибка:", error.message);
-        alert("Ошибка сети: " + error.message);
-        window.location.href = "/login";
-    }
-
-    // Обработчик выхода из аккаунта
-    const logoutBtn = document.getElementById("logout");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("access_token");
-            window.location.href = "/";
-        });
-    } else {
-        console.error("Кнопка выхода не найдена!");
-    }
-});
-document.addEventListener("DOMContentLoaded", async () => {
-    const goToHomeBtn = document.getElementById("goToHome");
-    if (goToHomeBtn) {
-        goToHomeBtn.addEventListener("click", () => {
-            window.location.href = "/index"; // Перенаправление на главную страницу
-        });
-    }
-});
