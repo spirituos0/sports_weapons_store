@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from backend import db
+from datetime import datetime
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -10,6 +11,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     role = db.Column(db.String(20), default="User")
     balance = db.Column(db.Float, default=0.0)
+    orders = db.relationship("Order", backref="user", lazy=True, foreign_keys='Order.user_id')
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -34,12 +36,13 @@ class Product(db.Model):
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False) #Add user reference
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     customer_name = db.Column(db.String(255), nullable=False)
     customer_email = db.Column(db.String(255), db.ForeignKey("user.email"), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), default='Pending')  # Order status (Pending, Completed, Canceled)
-    products = db.relationship('OrderProduct', backref='order', lazy="dynamic")  # Product Relationships
+    products = db.relationship('OrderProduct', backref='order', lazy="dynamic")  # Product Connection
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class OrderProduct(db.Model):  # Intermediate table for many-to-many relationship
     id = db.Column(db.Integer, primary_key=True)
@@ -57,6 +60,7 @@ class CartItem(db.Model):
     cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
+
     product = db.relationship("Product", backref="cart_items", lazy=True)
 
 class Category(db.Model):

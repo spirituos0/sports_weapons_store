@@ -1,5 +1,4 @@
 from backend import create_app, db
-from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from backend.config import Config
 from flask_cors import CORS  # Enables CORS
@@ -9,7 +8,7 @@ from flask import Flask, render_template
 
 app = create_app()
 app.config.from_object(Config)
-migrate = Migrate(app, db)
+
 
 
 

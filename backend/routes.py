@@ -4,6 +4,7 @@ from werkzeug.exceptions import NotFound
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt_identity
 from backend.models import User, Product, Order, OrderProduct, Cart, CartItem, Category
 from backend import db  
+from datetime import datetime
 
 
 main_bp = Blueprint("main", __name__, url_prefix="/api")
@@ -186,19 +187,35 @@ def update_order(order_id):
 @main_bp.route('/orders/<int:order_id>', methods=['DELETE'])
 @jwt_required()
 def delete_order(order_id):
-    order = Order.query.get_or_404(order_id)
+    user_id = get_jwt_identity()
+    order = Order.query.filter_by(id=order_id, user_id=user_id).first()
     
     if not order:
-        return jsonify({"message": "Order not found"}), 404
+        return jsonify({"error": "Order not found or not yours"}), 404
 
-    # Deleting related products
+    if order.status == "Shipped": # Only restore stock if order hasn't been shipped
+        return jsonify({"error": "You can't delete shipped orders"}), 403
+
+    user = User.query.get(user_id)
+
+    # 1. Return product quantities back to stock
+    
+    for op in order.products:
+        product = Product.query.get(op.product_id)
+        if product:
+            product.stock += op.quantity  # 👈 Return stock
+
+    if user:
+        user.balance += order.total_price
+
+    # 2. Delete related OrderProduct records
     OrderProduct.query.filter_by(order_id=order_id).delete()
 
-    # Now we can delete the order
+    # 3. Delete the order itself
     db.session.delete(order)
     db.session.commit()
 
-    return jsonify({"message": "Order deleted successfully"}), 200
+    return jsonify({"message": "Order deleted and stock restored."}), 200
 
 @main_bp.route("/purchase", methods=["POST"])
 @jwt_required()
@@ -242,8 +259,10 @@ def purchase():
     new_order = Order(
         user_id=user.id,
         customer_name=user.username,
-        customer_email=total_price,
-        status="Completed"
+        customer_email=user.email,
+        total_price=total_price,
+         created_at=datetime.utcnow()
+
     )
     db.session.add(new_order)
     db.session.commit()
@@ -260,4 +279,33 @@ def purchase():
         db.session.commit()
 
     return jsonify({"message": "Purchase successful", "order_id": new_order.id, "remaining_balance": user.balance}), 201
+
+@main_bp.route("/orders/user", methods=["GET"])
+@jwt_required()
+def get_user_orders():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    orders = Order.query.filter_by(user_id=user_id).order_by(Order.id.asc()).all()
+
+    order_list = []
+    for idx, order in enumerate(orders, start=1): # this adds per-user order number
+        order_list.append({
+            "id": order.id,
+            "user_order_number": idx,
+            "total_price": order.total_price,
+            "status": order.status,
+            'created_at': order.created_at.isoformat() if order.created_at else None,
+            "products": [
+                {
+                    "name": Product.query.get(op.product_id).name,
+                    "quantity": op.quantity
+                } for op in order.products
+            ]
+        })
+    print("Order created_at:", order.created_at)
+    return jsonify(order_list), 200   
 

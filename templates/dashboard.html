@@ -6,28 +6,27 @@
     <title>Profile</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </head>
 <body>
     <h1>Welcome, <span id="username"></span>!</h1>
-    <h2>Your info:</h2>
     <p>Email: <span id="email"></span></p>
 
-        <!-- Balance block -->
+
+
+    <!-- Balance block -->
     <h2>Balance: $<span id="balance">0.00</span></h2>
     <input type="number" id="depositAmount" placeholder="Enter amount" min="1">
     <button id="depositButton">Deposit</button>
-    
-    <ul>
-        <li>ID: <span id="userId"></span></li>
-        <li>Role: <span id="role"></span></li>
-        <li>Registration Date: <span id="created_at"></span></li>
-    </ul>
 
-    <ul id="userInfo"></ul>
+    <h2>Your Orders:</h2>
+    <div id="ordersContainer">
+        <p>Loading orders...</p>
+    </div>
 
+    <button id="goToHome">Go to Home Page</button>
+    <button id="logout" class="right-button">Log Out</button>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    <button id="goToHome">Go to Home</button>
-    <button id="logout">Log Out</button>
+    <script src="{{ url_for('static', filename='js/logout.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/balance.js') }}"></script>
 </body>
 </html>
