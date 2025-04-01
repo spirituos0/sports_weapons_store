@@ -98,3 +98,31 @@ footer {
     bottom: 0;
     width: 100%;
 }
+
+/* Exit button */
+#logout {
+    background-color: #dc3545;
+}
+
+/* Buttons */
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.right-button {
+    float: right;
+    margin: 10px;
+}
+
+#user-balance {
+    text-align: right;
+    margin: 10px;
+    font-weight: bold;
+}

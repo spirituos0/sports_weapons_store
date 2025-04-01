@@ -68,34 +68,56 @@ function addToCart(productId) {
 }
 
 
-function loadCart() {
-    fetch("/cart", {
+async function loadCart() {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        alert("You must be logged in!");
+        window.location.href = "/";
+        return;
+    }
+
+    try {
+    const response = await fetch("/cart", {
         method: "GET",
         headers: {
-            "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+            "Authorization": `Bearer ${token}`
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        let cartList = document.getElementById("cart-list");
-        cartList.innerHTML = "";
+    });
 
-        if (data.message) {
-            cartList.innerHTML = `<p>${data.message}</p>`;
-            return;
-        }
+    if (response.status === 401) {
+        alert("Session expired. Please log in again.");
+        localStorage.removeItem("access_token");
+        window.location.href = "/";
+        return;
+    }
 
-        data.forEach(item => {
-            let cartItem = document.createElement("div");
-            cartItem.classList.add("cart-item");
-            cartItem.innerHTML = `
-                <p>${item.product_name} - ${item.quantity} pcs - $${item.price}</p>
-                <button class="remove-from-cart" onclick="removeFromCart(${item.product_id})">Remove</button>
-            `;
-            cartList.appendChild(cartItem);
-        });
-    })
-    .catch(error => console.error("Error loading cart:", error));
+    const data = await response.json();
+
+    let cartList = document.getElementById("cart-list");
+    cartList.innerHTML = "";
+
+    if (data.message) {
+        cartList.innerHTML = `<p>${data.message}</p>`;
+        return;
+    }
+
+    if (!Array.isArray(data)) {
+        throw new Error("Unexpected cart data format.");
+    }
+
+    data.forEach(item => {
+        let cartItem = document.createElement("div");
+        cartItem.classList.add("cart-item");
+        cartItem.innerHTML = `
+            <p>${item.product_name} - ${item.quantity} pcs - $${item.price}</p>
+            <button class="remove-from-cart" onclick="removeFromCart(${item.product_id})">Remove</button>
+        `;
+        cartList.appendChild(cartItem);
+    });
+    }catch(error) {
+        console.error("Error loading cart:", error);
+        alert("Failed to load cart. Please try again.");
+    }
 }
 
 function removeFromCart(productId) {
@@ -128,4 +150,51 @@ function clearCart() {
         loadCart();
     })
     .catch(error => console.error("Error clearing cart:", error));
+}
+
+async function purchaseCart() {
+    const token = localStorage.getItem("access_token");
+
+    const response = await fetch("/cart", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    const cartItems = await response.json();
+
+    if (cartItems.message) {
+        alert("Cart is empty!");
+        return;
+    }
+
+    const products = cartItems.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity
+    }));
+
+    const purchaseResponse = await fetch("/api/purchase", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ products })
+    });
+
+    const data = await purchaseResponse.json();
+
+    if (purchaseResponse.ok) {
+        alert(`Purchase successful! Order ID: ${data.order_id}, Remaining balance: $${data.remaining_balance.toFixed(2)}`);
+
+        const balanceElem = document.getElementById("balance");
+        if (balanceElem) {
+            balanceElem.innerText = data.remaining_balance.toFixed(2);
+        }
+
+        clearCart(); // Clear the cart visually
+    } else {
+        alert(data.error || "Purchase failed.");
+    }
 }

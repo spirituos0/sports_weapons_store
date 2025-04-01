@@ -61,3 +61,11 @@ button:hover {
 #logout:hover {
     background-color: #c82333;
 }
+
+.order-box {
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 5px;
+}

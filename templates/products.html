@@ -13,18 +13,23 @@
         <nav>
             <a href="{{ url_for('index') }}">Home</a>
             <a href="{{ url_for('dashboard') }}">Profile</a>
+            <div id="user-balance">Balance: $<span id="balance">0.00</span></div>
         </nav>
         <h2>Cart</h2>
         <div id="cart-list"></div>
+        <button class="purchase-cart" onclick="purchaseCart()">Purchase</button>
         <button class="clear-cart" onclick="clearCart()">Clear Cart</button>
     </header>
     <main>
         <div id="product-list"></div>
         <div id="product-list"></div>
+        <button id="logout" class="right-button">Log Out</button>
     </main>
     <footer>
         <p>© 2025 Store. All rights reserved.</p>
     </footer>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/logout.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/balance.js') }}"></script>
 </body>
 </html>
