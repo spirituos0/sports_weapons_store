@@ -1,5 +1,5 @@
 venv/
-C:\Users\tilto\Shop Site\backend\__pycache__/
+__pycache__/
 *.pyc
 *.pyo
 seed.py
