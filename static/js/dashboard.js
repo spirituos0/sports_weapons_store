@@ -179,7 +179,7 @@ function startCountdown(elementId, createdAt, orderId) {
     console.log("Countdown Element ID:", elementId, "Found:", !!countdownElement);
     console.log("Status Element ID:", `status-${orderId}`, "Found:", !!statusElement);
 
-    const deliveryDuration = 60 * 1000; //1 minute
+    const deliveryDuration = 120 * 1000; //2 minutes
     const endTime = new Date(createdAt.getTime() + deliveryDuration);
     let timer;
 
@@ -191,7 +191,7 @@ function startCountdown(elementId, createdAt, orderId) {
         console.log("Now:", now.toISOString(), "| EndTime:", endTime.toISOString());
 
         if (remaining <= 0) {
-            countdownElement.innerText = "Delivered";
+            countdownElement.innerText = "0";
             clearInterval(timer);
 
             if (statusElement && statusElement.innerText !== "Shipped") {

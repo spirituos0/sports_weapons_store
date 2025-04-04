@@ -9,25 +9,38 @@
 </head>
 <body>
     <header>
-        <h1>Product Catalog</h1>
+        <h1>🛒 Product Catalog</h1>
         <nav>
             <a href="{{ url_for('index') }}">Home</a>
             <a href="{{ url_for('dashboard') }}">Profile</a>
-            <div id="user-balance">Balance: $<span id="balance">0.00</span></div>
         </nav>
-        <h2>Cart</h2>
-        <div id="cart-list"></div>
-        <button class="purchase-cart" onclick="purchaseCart()">Purchase</button>
-        <button class="clear-cart" onclick="clearCart()">Clear Cart</button>
+        <div id="user-balance">Balance: $<span id="balance">0.00</span></div>
     </header>
+
     <main>
-        <div id="product-list"></div>
-        <div id="product-list"></div>
-        <button id="logout" class="right-button">Log Out</button>
+        <section class="cart-section">
+            <h2>Your Cart</h2>
+            <div id="cart-list" class="cart-list"></div>
+
+            <div class="cart-buttons">
+                <button class="purchase-cart" onclick="purchaseCart()">💳 Purchase</button>
+                <button class="clear-cart" onclick="clearCart()">🧹 Clear Cart</button>
+            </div>
+        </section>
+
+        <section class="products-section">
+            <h2>Products</h2>
+            <div id="product-list"></div>
+        </section>
+
+        <button id="logout" class="logout-btn">🚪Log Out</button>
     </main>
+
     <footer>
         <p>© 2025 Store. All rights reserved.</p>
     </footer>
+
+    <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="{{ url_for('static', filename='js/logout.js') }}"></script>
     <script src="{{ url_for('static', filename='js/balance.js') }}"></script>

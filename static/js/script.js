@@ -186,7 +186,7 @@ async function purchaseCart() {
     const data = await purchaseResponse.json();
 
     if (purchaseResponse.ok) {
-        alert(`Purchase successful! Order ID: ${data.order_id}, Remaining balance: $${data.remaining_balance.toFixed(2)}`);
+        alert(`Purchase successful! Remaining balance: $${data.remaining_balance.toFixed(2)}`);
 
         const balanceElem = document.getElementById("balance");
         if (balanceElem) {

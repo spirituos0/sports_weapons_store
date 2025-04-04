@@ -6,17 +6,17 @@ html, body {
     text-align: center;
     display: flex;
     flex-direction: column;
-    background-color: #f4f4f4;
+    background-color: #e6d8d87a;
 }
 
 header {
-    background-color: #333;
+    background-color: #634848e0;
     color: white;
     padding: 1rem;
 }
 
 nav a {
-    color: white;
+    color: rgb(20, 13, 18);
     margin: 0 15px;
     text-decoration: none;
 }
@@ -28,10 +28,14 @@ main {
 .btn {
     display: inline-block;
     padding: 10px 20px;
-    background: #007bff;
+    background: #07478b;
     color: white;
     text-decoration: none;
     border-radius: 5px;
+}
+
+.btn:hover {
+    transform: scale(1.05);
 }
 
 /* Button "Add to Cart" */
@@ -102,6 +106,12 @@ footer {
 /* Exit button */
 #logout {
     background-color: #dc3545;
+    float: right;
+
+}
+
+#logout:hover {
+    transform: scale(1.05);
 }
 
 /* Buttons */
@@ -116,10 +126,10 @@ button {
     margin-top: 10px;
 }
 
-.right-button {
-    float: right;
-    margin: 10px;
+button:hover {
+    transform: scale(1.05);
 }
+
 
 #user-balance {
     text-align: right;
